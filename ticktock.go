@@ -149,8 +149,8 @@ func (j *jobC) schedule() {
 		}
 		dur := j.when.Next(j.when.LastRun)
 		j.timer = time.AfterFunc(dur, func() {
-			j.run()
 			j.when.LastRun = time.Now()
+			j.run()
 			if j.forever {
 				j.schedule()
 				return
