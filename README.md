@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/rakyll/ticktock.png?branch=master)](https://travis-ci.org/rakyll/ticktock)
 
 ticktock is a cron job scheduler that allows you to define and run periodic jobs written in Golang. ticktock also optionally provides automatic job retry if the job has failed with an error. ticktock supports delayed and repeating jobs.
-
+This project is froked from rakyll/ticktock, I just fixed some bugs and added serval new functions here.
 **Note: Work in progress, don't use it on prod yet.**
 
 ~~~ go
@@ -16,7 +16,7 @@ ticktock.Start()
 Import and `go get` the ticktock package.
 
 ~~~ go
-import "github.com/rakyll/ticktock"
+import "github.com/chenyongyu/ticktock"
 ~~~
 
 The jobs you would like to schedule needs to implement `ticktock.Job` interface by providing runnable. The following example is a sample job that prints the given message.
