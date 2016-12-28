@@ -20,7 +20,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rakyll/ticktock/t"
+	"github.com/chenyongyu/ticktock/t"
 )
 
 type counterJob struct {

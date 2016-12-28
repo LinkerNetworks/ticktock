@@ -21,7 +21,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rakyll/ticktock/t"
+	"github.com/chenyongyu/ticktock/t"
 )
 
 var (
@@ -93,6 +93,7 @@ func (s *Scheduler) ScheduleWithOpts(name string, job Job, opts *t.Opts) (err er
 		when:       opts.When,
 		forever:    opts.When.Every != nil,
 		cancelSig:  make(chan bool),
+		stop:       false,
 	}
 	if s.started {
 		s.wg.Add(1)
@@ -126,6 +127,42 @@ func (s *Scheduler) Start() {
 	s.wg.Wait()
 }
 
+func (s *Scheduler) GetAllJobStatus() map[string]bool{
+	OutMap := map[string]bool{}
+	for jobName, job := range s.jobs {
+		OutMap[jobName] = job.getJobCStatus()
+	}
+	return OutMap
+}
+
+func (s *Scheduler) StopJob(name string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	job, ok := s.jobs[name]
+	if !ok {
+		return
+	}
+	job.cancel()
+}
+
+func (s *Scheduler) RestartJob(name string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	job, ok := s.jobs[name]
+	if !ok {
+		return
+	}
+	job.cancel()
+	delete(s.jobs, name)
+	jobStatus := job.getJobCStatus()
+	if !jobStatus {
+		return
+	}
+	newSchedularOps := t.Opts{When: job.when, RetryCount: job.retryCount }
+	s.ScheduleWithOpts(name, job.job, &newSchedularOps)
+}
+
 type jobC struct {
 	scheduler  *Scheduler
 	job        Job
@@ -134,6 +171,7 @@ type jobC struct {
 	forever    bool
 	timer      *time.Timer
 	cancelSig  chan bool
+	stop       bool
 }
 
 func (j *jobC) schedule() {
@@ -179,5 +217,10 @@ func (j *jobC) cancel() {
 func (j *jobC) done() {
 	// TODO: jobC should not have its scheduler
 	// handle this elsewhere
+	j.stop = true
 	j.scheduler.wg.Done()
+}
+
+func (j *jobC) getJobCStatus() bool{
+	return j.stop
 }
