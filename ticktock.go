@@ -67,6 +67,13 @@ func Start() {
 	defaultScheduler.Start()
 }
 
+func StopJob(name string) {
+	defaultScheduler.StopJob(name)
+}
+
+func RestartJob(name string) {
+	defaultScheduler.RestartJob(name)
+}
 // Schedules a job on the scheduler. Name should be unique
 // among all registered jobs.
 func (s *Scheduler) Schedule(name string, job Job, when *t.When) error {
